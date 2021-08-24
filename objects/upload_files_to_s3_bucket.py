@@ -1,6 +1,7 @@
 import boto3
 from pprint import pprint
 import pathlib
+import os
 
 
 def upload_file_using_client():
@@ -11,7 +12,7 @@ def upload_file_using_client():
     s3 = boto3.client("s3")
     bucket_name = "binary-guy-frompython-1"
     object_name = "sample1.txt"
-    file_name = f"{pathlib.Path(__file__).parent.resolve()}\\sample_file.txt"
+    file_name = os.path.join(pathlib.Path(__file__).parent.resolve(), "sample_file.txt")
 
     response = s3.upload_file(file_name, bucket_name, object_name)
     pprint(response)  # prints None
@@ -19,13 +20,14 @@ def upload_file_using_client():
 
 def upload_file_using_resource():
     """
-    Uploads file to S3 bucket using S3 resource object
+    Uploads file to S3 bucket using S3 resource object.
+    This is useful when you are dealing with multiple buckets st same time.
     :return: None
     """
     s3 = boto3.resource("s3")
     bucket_name = "binary-guy-frompython-2"
     object_name = "sample2.txt"
-    file_name = f"{pathlib.Path(__file__).parent.resolve()}\\sample_file.txt"
+    file_name = os.path.join(pathlib.Path(__file__).parent.resolve(), "sample_file.txt")
 
     bucket = s3.Bucket(bucket_name)
     response = bucket.upload_file(file_name, object_name)
@@ -42,7 +44,7 @@ def upload_file_to_s3_using_put_object():
     s3 = boto3.resource("s3")
     bucket_name = "binary-guy-frompython-2"
     object_name = "sample_using_put_object.txt"
-    file_name = f"{pathlib.Path(__file__).parent.resolve()}\\sample_file.txt"
+    file_name = os.path.join(pathlib.Path(__file__).parent.resolve(), "sample_file.txt")
 
     bucket = s3.Bucket(bucket_name)
     response = bucket.put_object(
@@ -62,20 +64,22 @@ def upload_file_to_s3_using_file_object():
     Uploads to file to s3 using upload_fileobj function of s3 client object.
     Similar function is available for s3 resource object as well.
     In this case, instead of copying file, we open that file and copy data of that file to S3.
-    This can be useful when you want to make some validations on data before you copy that data to S3.
+    This can be useful when you have binary data already created as output of some process.
+    We do not have to write this binary data to local file and then upload that file.
+    We can use upload_fileobj function
     :return: None
     """
     s3 = boto3.client("s3")
     bucket_name = "binary-guy-frompython-1"
     object_name = "sample_file_object.txt"
-    file_name = f"{pathlib.Path(__file__).parent.resolve()}\\sample_file.txt"
+    file_name = os.path.join(pathlib.Path(__file__).parent.resolve(), "sample_file.txt")
 
     with open(file_name, "rb") as data:
         s3.upload_fileobj(data, bucket_name, object_name)
 
 
 if __name__ == "__main__":
-    upload_file_using_client()
-    upload_file_using_resource()
-    upload_file_to_s3_using_put_object()
+    # upload_file_using_client()
+    # upload_file_using_resource()
+    # upload_file_to_s3_using_put_object()
     upload_file_to_s3_using_file_object()
